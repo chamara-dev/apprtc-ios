@@ -248,6 +248,9 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 
 - (void)channel:(ARDWebSocketChannel *)channel
     didReceiveMessage:(ARDSignalingMessage *)message {
+    
+    NSLog(@"didReceiveMessage:%i", message.type);
+    
   switch (message.type) {
     case kARDSignalingMessageTypeOffer:
     case kARDSignalingMessageTypeAnswer:
