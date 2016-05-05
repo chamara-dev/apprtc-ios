@@ -52,17 +52,27 @@ typedef NS_ENUM(NSInteger, ARDAppClientState) {
 
 - (void)appClient:(ARDAppClient *)client
          didError:(NSError *)error;
-
 @end
+
+
+@class ARDSignalingMessage;
+@protocol ARDAppServerDelegate <NSObject>
+@required
+- (void)appClient:(ARDAppClient *)client messageReadyForServer:(ARDSignalingMessage *)message;
+@end
+
 
 // Handles connections to the AppRTC server for a given room.
 @interface ARDAppClient : NSObject
 
 @property(nonatomic, readonly) ARDAppClientState state;
 @property(nonatomic, weak) id<ARDAppClientDelegate> delegate;
+@property(nonatomic, weak) id<ARDAppServerDelegate> serverDelegate;
 @property(nonatomic, strong) NSString *serverHostUrl;
 
 - (instancetype)initWithDelegate:(id<ARDAppClientDelegate>)delegate;
+
+- (instancetype)initWithDelegate:(id<ARDAppClientDelegate>)delegate andServerDelegate:(id<ARDAppServerDelegate>)serverDelegate;
 
 // Establishes a connection with the AppRTC servers for the given room id.
 // TODO(tkchin): provide available keys/values for options. This will be used
@@ -70,6 +80,10 @@ typedef NS_ENUM(NSInteger, ARDAppClientState) {
 // and so on.
 - (void)connectToRoomWithId:(NSString *)roomId
                     options:(NSDictionary *)options;
+
+- (void)initARDAppClientWithOption:(NSDictionary *)options;
+
+- (void)onReceivedServerMessages:(ARDSignalingMessage *)message;
 
 // Mute and unmute Audio-In
 - (void)muteAudioIn;
