@@ -83,6 +83,8 @@ typedef NS_ENUM(NSInteger, ARDAppClientState) {
 
 - (void)initARDAppClientWithOption:(NSDictionary *)options;
 
+- (void)updateRTCInitiatorStatus:(BOOL)isInitiator;
+
 - (void)onReceivedServerMessages:(ARDSignalingMessage *)message;
 
 // Mute and unmute Audio-In

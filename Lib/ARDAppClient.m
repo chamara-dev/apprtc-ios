@@ -245,8 +245,12 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
                       strongSelf.isTurnComplete = YES;
                       [strongSelf startSignalingIfReady];
                   }];
-    weakSelf.isInitiator = TRUE;
+    weakSelf.isInitiator = [[options objectForKey:@"isInitiator"] boolValue];
     [weakSelf startSignalingIfReady];
+}
+
+- (void)updateRTCInitiatorStatus:(BOOL)isInitiator{
+    self.isInitiator = isInitiator;
 }
 
 - (void)disconnect {
