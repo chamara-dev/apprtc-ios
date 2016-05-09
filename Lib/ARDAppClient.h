@@ -85,7 +85,12 @@ typedef NS_ENUM(NSInteger, ARDAppClientState) {
 
 - (void)updateRTCInitiatorStatus:(BOOL)isInitiator;
 
+- (void)startSendOfferToCallee;
+
 - (void)onReceivedServerMessages:(ARDSignalingMessage *)message;
+
+- (void)startProcessSignalsFromCaller;
+
 
 // Mute and unmute Audio-In
 - (void)muteAudioIn;

@@ -88,6 +88,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 @property(nonatomic, strong) NSString *clientId;
 @property(nonatomic, assign) BOOL isInitiator;
 @property(nonatomic, assign) BOOL isSpeakerEnabled;
+@property(nonatomic, assign) BOOL startProcessingSignals;
+@property(nonatomic, assign) BOOL isReadyToSendOfferToCallee;
 @property(nonatomic, strong) NSMutableArray *iceServers;
 @property(nonatomic, strong) NSURL *webSocketURL;
 @property(nonatomic, strong) NSURL *webSocketRestURL;
@@ -111,6 +113,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 @synthesize roomId = _roomId;
 @synthesize clientId = _clientId;
 @synthesize isInitiator = _isInitiator;
+@synthesize startProcessingSignals = _startProcessingSignals;
+@synthesize isReadyToSendOfferToCallee = _isReadyToSendOfferToCallee;
 @synthesize isSpeakerEnabled = _isSpeakerEnabled;
 @synthesize iceServers = _iceServers;
 @synthesize webSocketURL = _websocketURL;
@@ -124,6 +128,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     _iceServers = [NSMutableArray arrayWithObject:[self defaultSTUNServer]];
     _serverHostUrl = kARDRoomServerHostUrl;
     _isSpeakerEnabled = YES;
+    _startProcessingSignals = YES;
+    _isReadyToSendOfferToCallee = YES;
       
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(orientationChanged:)
@@ -246,11 +252,25 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
                       [strongSelf startSignalingIfReady];
                   }];
     weakSelf.isInitiator = [[options objectForKey:@"isInitiator"] boolValue];
+    weakSelf.startProcessingSignals = [[options objectForKey:@"startMessageProcessing"] boolValue];
+    weakSelf.isReadyToSendOfferToCallee = [[options objectForKey:@"isReadyToSendOffer"] boolValue];
     [weakSelf startSignalingIfReady];
 }
 
 - (void)updateRTCInitiatorStatus:(BOOL)isInitiator{
     self.isInitiator = isInitiator;
+}
+
+- (void)startProcessSignalsFromCaller{
+    self.startProcessingSignals = TRUE;
+    self.isReadyToSendOfferToCallee = TRUE;
+    [self drainMessageQueueIfReady];
+}
+
+- (void)startSendOfferToCallee{
+    self.isReadyToSendOfferToCallee = TRUE;
+    self.startProcessingSignals = TRUE;
+    [self sendOffer];
 }
 
 - (void)disconnect {
@@ -473,7 +493,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
                                                   delegate:self];
   RTCMediaStream *localStream = [self createLocalMediaStream];
   [_peerConnection addStream:localStream];
-  if (_isInitiator) {
+
+  if (_isInitiator && self.isReadyToSendOfferToCallee) {
     [self sendOffer];
   } else {
     [self waitForAnswer];
@@ -490,7 +511,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 }
 
 - (void)drainMessageQueueIfReady {
-  if (!_peerConnection || !_hasReceivedSdp) {
+  if (!_peerConnection || !_hasReceivedSdp || !_startProcessingSignals) {
     return;
   }
   for (ARDSignalingMessage *message in _messageQueue) {
