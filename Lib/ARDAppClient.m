@@ -289,10 +289,6 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     }
     // Disconnect from collider.
     _channel = nil;
-  }else{
-      if(self.serverDelegate){
-          [self.serverDelegate appClient:self messageReadyForServer:[[ARDByeMessage alloc] init]];
-      }
   }
     
   _clientId = nil;
@@ -395,7 +391,10 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
     iceConnectionChanged:(RTCICEConnectionState)newState {
-  NSLog(@"ICE state changed: %d", newState);
+    NSLog(@"ICE state changed: %d", newState);
+    if(newState == RTCICEConnectionDisconnected || RTCICEConnectionClosed){
+        //self.state = kARDAppClientStateDisconnected;
+    }
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
@@ -829,18 +828,22 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 #pragma mark - Video mute/unmute
 - (void)muteVideoIn {
     NSLog(@"video muted");
+#if !TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
     RTCMediaStream *localStream = _peerConnection.localStreams[0];
     self.defaultVideoTrack = localStream.videoTracks[0];
     [localStream removeVideoTrack:localStream.videoTracks[0]];
     [_peerConnection removeStream:localStream];
     [_peerConnection addStream:localStream];
+#endif
 }
 - (void)unmuteVideoIn {
     NSLog(@"video unmuted");
+#if !TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
     RTCMediaStream* localStream = _peerConnection.localStreams[0];
     [localStream addVideoTrack:self.defaultVideoTrack];
     [_peerConnection removeStream:localStream];
     [_peerConnection addStream:localStream];
+#endif
 }
 
 #pragma mark - swap camera
@@ -866,6 +869,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     return localVideoTrack;
 }
 - (void)swapCameraToFront{
+#if !TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
     RTCMediaStream *localStream = _peerConnection.localStreams[0];
     [localStream removeVideoTrack:localStream.videoTracks[0]];
     
@@ -877,8 +881,10 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     }
     [_peerConnection removeStream:localStream];
     [_peerConnection addStream:localStream];
+#endif
 }
 - (void)swapCameraToBack{
+#if !TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
     RTCMediaStream *localStream = _peerConnection.localStreams[0];
     [localStream removeVideoTrack:localStream.videoTracks[0]];
     
@@ -890,6 +896,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     }
     [_peerConnection removeStream:localStream];
     [_peerConnection addStream:localStream];
+#endif
 }
 
 #pragma mark - enable/disable speaker
