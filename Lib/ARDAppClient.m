@@ -840,8 +840,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     NSLog(@"video unmuted");
 #if !TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
     RTCMediaStream* localStream = _peerConnection.localStreams[0];
-    [localStream addVideoTrack:self.defaultVideoTrack];
     [_peerConnection removeStream:localStream];
+    [localStream addVideoTrack:self.defaultVideoTrack];
     [_peerConnection addStream:localStream];
 #endif
 }
@@ -870,7 +870,9 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 }
 - (void)swapCameraToFront{
 #if !TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
+    
     RTCMediaStream *localStream = _peerConnection.localStreams[0];
+    if([localStream.videoTracks count] == 0) return; // swap camera is disabled if video source is not available
     [localStream removeVideoTrack:localStream.videoTracks[0]];
     
     RTCVideoTrack *localVideoTrack = [self createLocalVideoTrack];
@@ -886,6 +888,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 - (void)swapCameraToBack{
 #if !TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
     RTCMediaStream *localStream = _peerConnection.localStreams[0];
+    if([localStream.videoTracks count] == 0) return;// swap camera is disabled if video source is not available
     [localStream removeVideoTrack:localStream.videoTracks[0]];
     
     RTCVideoTrack *localVideoTrack = [self createLocalVideoTrackBackCamera];
