@@ -16,6 +16,9 @@
 		5C80AAA61AAB71C700F21FFA /* ARTCVideoChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C80AAA51AAB71C700F21FFA /* ARTCVideoChatViewController.m */; };
 		5C80AAAA1AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C80AAA91AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m */; };
 		65B60C96FF584964C27562A6 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDADA2C0C3A5199BC24EF352 /* libPods.a */; };
+		C6517B9E1D0A62B700C3644B /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517B9D1D0A62B700C3644B /* libc++.tbd */; };
+		C6517BA01D0A62C800C3644B /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517B9F1D0A62C800C3644B /* GLKit.framework */; };
+		C6517BA21D0A62D200C3644B /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517BA11D0A62D200C3644B /* VideoToolbox.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +38,9 @@
 		5C80AAA91AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARTCRoomTextInputViewCell.m; sourceTree = "<group>"; };
 		A91A157833594B50E74E767F /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		B6DABCBD6F43FEC6530D36B2 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		C6517B9D1D0A62B700C3644B /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		C6517B9F1D0A62C800C3644B /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		C6517BA11D0A62D200C3644B /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		EDADA2C0C3A5199BC24EF352 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -43,6 +49,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C6517BA21D0A62D200C3644B /* VideoToolbox.framework in Frameworks */,
+				C6517BA01D0A62C800C3644B /* GLKit.framework in Frameworks */,
+				C6517B9E1D0A62B700C3644B /* libc++.tbd in Frameworks */,
 				65B60C96FF584964C27562A6 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -53,6 +62,9 @@
 		1148D91C97037D5C1CF3115B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C6517BA11D0A62D200C3644B /* VideoToolbox.framework */,
+				C6517B9F1D0A62C800C3644B /* GLKit.framework */,
+				C6517B9D1D0A62B700C3644B /* libc++.tbd */,
 				EDADA2C0C3A5199BC24EF352 /* libPods.a */,
 			);
 			name = Frameworks;

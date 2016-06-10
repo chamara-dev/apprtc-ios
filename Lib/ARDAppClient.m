@@ -914,4 +914,37 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     _isSpeakerEnabled = NO;
 }
 
+- (void) increaseMicrophoneInputGane:(int)precentage{
+    
+    float gain= ((precentage > 100) ? 100 :  precentage)/100.00;
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    //if (audioSession.isInputGainSettable) {
+        NSError *error = nil;
+        BOOL success = [audioSession setInputGain:gain error:&error];
+        if (!success) {
+            NSLog(@"increaseMicrophoneInputGane:%@", error);
+        }
+    //}
+    //else {
+    //    NSLog(@"Cannot set input gain");
+    //}
+}
+
+- (void) decreaseMicrophoneInputGane:(int)precentage{
+    
+    float gain= ((precentage < 0) ? 0 :  precentage)/100.00;
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    //if (audioSession.isInputGainSettable) {
+        NSError *error = nil;
+        BOOL success = [audioSession setInputGain:gain error:&error];
+        if (!success) {
+            NSLog(@"decreaseMicrophoneInputGane:%@", error);
+        }
+    //}
+    //else {
+    //    NSLog(@"Cannot set input gain");
+    //}
+}
+
+
 @end

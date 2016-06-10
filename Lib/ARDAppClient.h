@@ -95,6 +95,8 @@ typedef NS_ENUM(NSInteger, ARDAppClientState) {
 // Mute and unmute Audio-In
 - (void)muteAudioIn;
 - (void)unmuteAudioIn;
+- (void) increaseMicrophoneInputGane:(int)precentage;
+- (void) decreaseMicrophoneInputGane:(int)precentage;
 
 // Mute and unmute Video-In
 - (void)muteVideoIn;
