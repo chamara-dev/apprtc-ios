@@ -95,6 +95,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 @property(nonatomic, strong) NSURL *webSocketRestURL;
 @property(nonatomic, strong) RTCAudioTrack *defaultAudioTrack;
 @property(nonatomic, strong) RTCVideoTrack *defaultVideoTrack;
+@property(nonatomic, strong) NSTimer* renegotiationTimer;
+@property(nonatomic, assign) RTCICEConnectionState iceState;
 
 @end
 
@@ -119,6 +121,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 @synthesize iceServers = _iceServers;
 @synthesize webSocketURL = _websocketURL;
 @synthesize webSocketRestURL = _websocketRestURL;
+@synthesize iceState = _iceState;
 
 - (instancetype)initWithDelegate:(id<ARDAppClientDelegate>)delegate {
   if (self = [super init]) {
@@ -130,6 +133,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     _isSpeakerEnabled = YES;
     _startProcessingSignals = YES;
     _isReadyToSendOfferToCallee = YES;
+    _iceState = RTCICEConnectionNew;
+      
       
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(orientationChanged:)
@@ -277,7 +282,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
   if (_state == kARDAppClientStateDisconnected) {
     return;
   }
-  if (self.isRegisteredWithRoomServer) {
+  if (self.isRegisteredWithRoomServer && (self.iceState != RTCICEConnectionDisconnected)) {
     [self unregisterWithRoomServer];
   }
   if (_channel) {
@@ -386,14 +391,24 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 
 - (void)peerConnectionOnRenegotiationNeeded:
     (RTCPeerConnection *)peerConnection {
-  NSLog(@"WARNING: Renegotiation needed but unimplemented.");
+    NSLog(@"Renegotiation - send offer again");
+    if(peerConnection.iceConnectionState == RTCICEConnectionCompleted){
+        [self.renegotiationTimer invalidate];
+        self.renegotiationTimer = nil;
+        self.renegotiationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendOffer) userInfo:nil repeats:NO];
+    }
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
     iceConnectionChanged:(RTCICEConnectionState)newState {
     NSLog(@"ICE state changed: %d", newState);
-    if(newState == RTCICEConnectionDisconnected || RTCICEConnectionClosed){
-        //self.state = kARDAppClientStateDisconnected;
+    self.iceState = newState;
+    if(newState == RTCICEConnectionDisconnected){
+        NSLog(@"ICE Disconnected");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //Have to implement proper delegate method to dismiss the videochatview
+            [self.delegate appClient:self didError:nil];
+        });
     }
 }
 
@@ -434,12 +449,82 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
       [_delegate appClient:self didError:sdpError];
       return;
     }
-    [_peerConnection setLocalDescriptionWithDelegate:self
-                                  sessionDescription:sdp];
-    ARDSessionDescriptionMessage *message =
-        [[ARDSessionDescriptionMessage alloc] initWithDescription:sdp];
-    [self sendSignalingMessage:message];
+
+      NSString *sdpString = [self preferVideoCodec:@"H264" inSDP:sdp.description];
+      RTCSessionDescription *updatedSDP = [[RTCSessionDescription alloc] initWithType:sdp.type sdp:sdpString];
+      [_peerConnection setLocalDescriptionWithDelegate:self
+                                    sessionDescription:updatedSDP];
+      ARDSessionDescriptionMessage *message =
+      [[ARDSessionDescriptionMessage alloc] initWithDescription:updatedSDP];
+      [self sendSignalingMessage:message];
   });
+}
+
+- (NSString *)preferVideoCodec:(NSString *)codec inSDP:(NSString *)sdpString
+{
+    NSString *lineSeparator = @"\n";
+    NSString *mLineSeparator = @" ";
+    // Copied from PeerConnectionClient.java.
+    // TODO(tkchin): Move this to a shared C++ file.
+    NSMutableArray *lines = [NSMutableArray arrayWithArray:[sdpString componentsSeparatedByString:lineSeparator]];
+    NSInteger mLineIndex = -1;
+    NSString *codecRtpMap = nil;
+    // a=rtpmap:<payload type> <encoding name>/<clock rate>
+    // [/<encoding parameters>]
+    NSString *pattern = [NSString stringWithFormat:@"^a=rtpmap:(\\d+) %@(/\\d+)+[\r]?$", codec];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                           options:0
+                                                                             error:nil];
+    for (NSInteger i = 0; (i < lines.count) && (mLineIndex == -1 || !codecRtpMap); ++i) {
+        NSString *line = lines[i];
+        if ([line hasPrefix:@"m=video"]) {
+            mLineIndex = i;
+            continue;
+        }
+        NSTextCheckingResult *codecMatches = [regex firstMatchInString:line
+                                                               options:0
+                                                                 range:NSMakeRange(0, line.length)];
+        if (codecMatches) {
+            codecRtpMap = [line substringWithRange:[codecMatches rangeAtIndex:1]];
+            continue;
+        }
+    }
+    
+    if (mLineIndex == -1) {
+        NSLog(@"No m=video line, so can't prefer %@", codec);
+        return sdpString;
+    }
+    
+    if (!codecRtpMap) {
+        NSLog(@"No rtpmap for %@", codec);
+        return sdpString;
+    }
+    
+    NSArray *origMLineParts = [lines[mLineIndex] componentsSeparatedByString:mLineSeparator];
+    
+    if (origMLineParts.count > 3) {
+        NSMutableArray *newMLineParts = [NSMutableArray arrayWithCapacity:origMLineParts.count];
+        NSInteger origPartIndex = 0;
+        
+        // Format is: m=<media> <port> <proto> <fmt> ...
+        [newMLineParts addObject:origMLineParts[origPartIndex++]];
+        [newMLineParts addObject:origMLineParts[origPartIndex++]];
+        [newMLineParts addObject:origMLineParts[origPartIndex++]];
+        [newMLineParts addObject:codecRtpMap];
+        
+        for (; origPartIndex < origMLineParts.count; ++origPartIndex) {
+            if (![codecRtpMap isEqualToString:origMLineParts[origPartIndex]]) {
+                [newMLineParts addObject:origMLineParts[origPartIndex]];
+            }
+        }
+        NSString *newMLine = [newMLineParts componentsJoinedByString:mLineSeparator];
+        [lines replaceObjectAtIndex:mLineIndex withObject:newMLine];
+    }
+    else {
+        NSLog(@"Wrong SDP media description format: %@", lines[mLineIndex]);
+    }
+    
+    return [lines componentsJoinedByString:lineSeparator];
 }
 
 - (void)peerConnection:(RTCPeerConnection *)peerConnection

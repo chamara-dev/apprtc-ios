@@ -91,6 +91,8 @@ typedef NS_ENUM(NSInteger, ARDAppClientState) {
 
 - (void)startProcessSignalsFromCaller;
 
+- (NSString *)preferVideoCodec:(NSString *)codec inSDP:(NSString *)sdpString;
+
 
 // Mute and unmute Audio-In
 - (void)muteAudioIn;
