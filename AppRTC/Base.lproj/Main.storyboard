@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="bnz-jK-0BD">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="bnz-jK-0BD">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -15,8 +16,10 @@
                         <color key="backgroundColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="RoomInputCell" rowHeight="200" id="Heo-uc-TEk" customClass="ARTCRoomTextInputViewCell">
+                                <rect key="frame" x="0.0" y="86" width="600" height="200"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Heo-uc-TEk" id="6ns-Sh-XIS">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="200"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please enter a room name." lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lZU-wT-4R2">
@@ -145,6 +148,14 @@
                                     <constraint firstAttribute="height" constant="120" id="ehF-uo-uGv"/>
                                 </constraints>
                             </view>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bSX-0Z-wck" customClass="ARDStatsView">
+                                <rect key="frame" x="360" y="150" width="240" height="300"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="IeC-FZ-GZt"/>
+                                    <constraint firstAttribute="height" constant="300" id="Zob-yk-vYe"/>
+                                </constraints>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dd3-fP-LRC" userLabel="Footer View">
                                 <rect key="frame" x="0.0" y="520" width="600" height="80"/>
                                 <subviews>
@@ -179,7 +190,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lf3-Gc-fyY" userLabel="Button Container View">
-                                <rect key="frame" x="20" y="220" width="40" height="160"/>
+                                <rect key="frame" x="20" y="195" width="40" height="210"/>
                                 <subviews>
                                     <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aRA-AT-ApW" userLabel="Audio Button">
                                         <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
@@ -211,10 +222,20 @@
                                             <action selector="hangupButtonPressed:" destination="2x5-EQ-a7c" eventType="touchUpInside" id="3nU-gs-Rsd"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="alk-MK-IFj" userLabel="Hangup Button">
+                                        <rect key="frame" x="0.0" y="169" width="40" height="40"/>
+                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <state key="normal" image="info">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="statsButtonPressed:" destination="2x5-EQ-a7c" eventType="touchUpInside" id="1Zk-Y4-cy1"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="160" id="JCv-a1-f3A"/>
+                                    <constraint firstAttribute="height" constant="210" id="JCv-a1-f3A"/>
                                     <constraint firstAttribute="width" constant="40" id="aRx-iH-5wU"/>
                                 </constraints>
                             </view>
@@ -227,6 +248,8 @@
                             <constraint firstAttribute="centerY" secondItem="lf3-Gc-fyY" secondAttribute="centerY" id="NH6-bi-VaL"/>
                             <constraint firstItem="hBv-zP-oWI" firstAttribute="top" secondItem="K8r-3C-MXA" secondAttribute="top" id="RpQ-i1-veX"/>
                             <constraint firstAttribute="trailing" secondItem="dd3-fP-LRC" secondAttribute="trailing" id="Xtn-ft-kwF"/>
+                            <constraint firstItem="bSX-0Z-wck" firstAttribute="centerY" secondItem="lf3-Gc-fyY" secondAttribute="centerY" id="a1D-2y-chK"/>
+                            <constraint firstAttribute="trailing" secondItem="bSX-0Z-wck" secondAttribute="trailing" id="eXw-a1-G5l"/>
                             <constraint firstAttribute="trailing" secondItem="hBv-zP-oWI" secondAttribute="trailing" id="fje-pq-7U1"/>
                             <constraint firstAttribute="trailing" secondItem="pNG-Z1-33i" secondAttribute="trailing" constant="28" id="jbE-2b-am5"/>
                             <constraint firstItem="lf3-Gc-fyY" firstAttribute="leading" secondItem="K8r-3C-MXA" secondAttribute="leading" constant="20" id="pYM-EH-dSy"/>
@@ -252,6 +275,7 @@
                         <outlet property="remoteViewLeftConstraint" destination="A0f-J1-3Oq" id="irO-yx-GYn"/>
                         <outlet property="remoteViewRightConstraint" destination="fje-pq-7U1" id="NSW-fJ-HAM"/>
                         <outlet property="remoteViewTopConstraint" destination="RpQ-i1-veX" id="SMP-kJ-366"/>
+                        <outlet property="statsView" destination="bSX-0Z-wck" id="1Wy-Xe-O0A"/>
                         <outlet property="urlLabel" destination="X4B-RQ-879" id="Y9h-q5-HVa"/>
                         <outlet property="videoButton" destination="76V-d2-VYt" id="SFH-gg-Kmo"/>
                     </connections>
@@ -282,6 +306,7 @@
     <resources>
         <image name="audioOn" width="13" height="17"/>
         <image name="hangup" width="25" height="9"/>
+        <image name="info" width="32" height="32"/>
         <image name="videoOn" width="18" height="14"/>
     </resources>
 </document>

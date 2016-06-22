@@ -46,6 +46,7 @@
 #import "RTCSessionDescriptionDelegate.h"
 #import "RTCVideoCapturer.h"
 #import "RTCVideoTrack.h"
+#import "RTCStatsDelegate.h"
 
 // TODO(tkchin): move these to a configuration object.
 static NSString *kARDRoomServerHostUrl =
@@ -73,8 +74,53 @@ static NSInteger kARDAppClientErrorNetwork = -5;
 static NSInteger kARDAppClientErrorInvalidClient = -6;
 static NSInteger kARDAppClientErrorInvalidRoom = -7;
 
+
+// We need a proxy to NSTimer because it causes a strong retain cycle. When
+// using the proxy, |invalidate| must be called before it properly deallocs.
+@interface ARDTimerProxy : NSObject
+
+- (instancetype)initWithInterval:(NSTimeInterval)interval
+                         repeats:(BOOL)repeats
+                    timerHandler:(void (^)(void))timerHandler;
+- (void)invalidate;
+
+@end
+
+@implementation ARDTimerProxy {
+    NSTimer *_timer;
+    void (^_timerHandler)(void);
+}
+
+- (instancetype)initWithInterval:(NSTimeInterval)interval
+                         repeats:(BOOL)repeats
+                    timerHandler:(void (^)(void))timerHandler {
+    NSParameterAssert(timerHandler);
+    if (self = [super init]) {
+        _timerHandler = timerHandler;
+        _timer = [NSTimer scheduledTimerWithTimeInterval:interval
+                                                  target:self
+                                                selector:@selector(timerDidFire:)
+                                                userInfo:nil
+                                                 repeats:repeats];
+    }
+    return self;
+}
+
+- (void)invalidate {
+    [_timer invalidate];
+}
+
+- (void)timerDidFire:(NSTimer *)timer {
+    _timerHandler();
+}
+
+@end
+
+
+
+
 @interface ARDAppClient () <ARDWebSocketChannelDelegate,
-    RTCPeerConnectionDelegate, RTCSessionDescriptionDelegate>
+    RTCPeerConnectionDelegate, RTCSessionDescriptionDelegate, RTCStatsDelegate>
 @property(nonatomic, strong) ARDWebSocketChannel *channel;
 @property(nonatomic, strong) RTCPeerConnection *peerConnection;
 @property(nonatomic, strong) RTCPeerConnectionFactory *factory;
@@ -100,10 +146,13 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 
 @end
 
-@implementation ARDAppClient
+@implementation ARDAppClient{
+    ARDTimerProxy *_statsTimer;
+}
 
 @synthesize delegate = _delegate;
 @synthesize serverDelegate = _serverDelegate;
+@synthesize shouldGetStats = _shouldGetStats;
 @synthesize state = _state;
 @synthesize serverHostUrl = _serverHostUrl;
 @synthesize channel = _channel;
@@ -154,6 +203,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 
 - (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+   self.shouldGetStats = NO;
   [self disconnect];
 }
 
@@ -176,6 +226,26 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     }
 }
 
+- (void)setShouldGetStats:(BOOL)shouldGetStats {
+    if (_shouldGetStats == shouldGetStats) {
+        return;
+    }
+    if (shouldGetStats) {
+        __weak ARDAppClient *weakSelf = self;
+        _statsTimer = [[ARDTimerProxy alloc] initWithInterval:2
+                                                      repeats:YES
+                                                 timerHandler:^{
+                                                     ARDAppClient *strongSelf = weakSelf;
+                                                     [strongSelf.peerConnection getStatsWithDelegate:strongSelf
+                                                                                    mediaStreamTrack:nil
+                                                                                    statsOutputLevel:RTCStatsOutputLevelDebug];
+                                                 }];
+    } else {
+        [_statsTimer invalidate];
+        _statsTimer = nil;
+    }
+    _shouldGetStats = shouldGetStats;
+}
 
 - (void)setState:(ARDAppClientState)state {
   if (_state == state) {
@@ -429,6 +499,16 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 - (void)peerConnection:(RTCPeerConnection*)peerConnection
     didOpenDataChannel:(RTCDataChannel*)dataChannel {
 }
+
+#pragma mark - RTCStatsDelegate
+
+- (void)peerConnection:(RTCPeerConnection *)peerConnection
+           didGetStats:(NSArray *)stats {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_delegate appClient:self didGetStats:stats];
+    });
+}
+
 
 #pragma mark - RTCSessionDescriptionDelegate
 

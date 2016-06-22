@@ -16,6 +16,7 @@
 		5C80AAA61AAB71C700F21FFA /* ARTCVideoChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C80AAA51AAB71C700F21FFA /* ARTCVideoChatViewController.m */; };
 		5C80AAAA1AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C80AAA91AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m */; };
 		65B60C96FF584964C27562A6 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDADA2C0C3A5199BC24EF352 /* libPods.a */; };
+		C62FFAD81D1922FB00784E5A /* ARDStatsView.m in Sources */ = {isa = PBXBuildFile; fileRef = C62FFAD71D1922FB00784E5A /* ARDStatsView.m */; };
 		C6517B9E1D0A62B700C3644B /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517B9D1D0A62B700C3644B /* libc++.tbd */; };
 		C6517BA01D0A62C800C3644B /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517B9F1D0A62C800C3644B /* GLKit.framework */; };
 		C6517BA21D0A62D200C3644B /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517BA11D0A62D200C3644B /* VideoToolbox.framework */; };
@@ -38,6 +39,8 @@
 		5C80AAA91AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARTCRoomTextInputViewCell.m; sourceTree = "<group>"; };
 		A91A157833594B50E74E767F /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		B6DABCBD6F43FEC6530D36B2 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		C62FFAD61D1922FB00784E5A /* ARDStatsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDStatsView.h; sourceTree = "<group>"; };
+		C62FFAD71D1922FB00784E5A /* ARDStatsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDStatsView.m; sourceTree = "<group>"; };
 		C6517B9D1D0A62B700C3644B /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		C6517B9F1D0A62C800C3644B /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		C6517BA11D0A62D200C3644B /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
@@ -143,6 +146,8 @@
 		5C80AAA71AAB786200F21FFA /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C62FFAD61D1922FB00784E5A /* ARDStatsView.h */,
+				C62FFAD71D1922FB00784E5A /* ARDStatsView.m */,
 				5C80AAA81AAB788A00F21FFA /* ARTCRoomTextInputViewCell.h */,
 				5C80AAA91AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m */,
 			);
@@ -183,6 +188,7 @@
 				TargetAttributes = {
 					5C80AA751AAB5DF300F21FFA = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = 5RDTHDNGFX;
 					};
 				};
 			};
@@ -270,6 +276,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C62FFAD81D1922FB00784E5A /* ARDStatsView.m in Sources */,
 				5C80AAAA1AAB788A00F21FFA /* ARTCRoomTextInputViewCell.m in Sources */,
 				5C80AAA61AAB71C700F21FFA /* ARTCVideoChatViewController.m in Sources */,
 				5C80AAA11AAB717100F21FFA /* ARTCRoomViewController.m in Sources */,
@@ -385,6 +392,8 @@
 			baseConfigurationReference = A91A157833594B50E74E767F /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = AppRTC/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -392,6 +401,7 @@
 					"$(PROJECT_DIR)/Lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -400,6 +410,8 @@
 			baseConfigurationReference = B6DABCBD6F43FEC6530D36B2 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = AppRTC/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -407,6 +419,7 @@
 					"$(PROJECT_DIR)/Lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

@@ -170,6 +170,11 @@
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
+- (IBAction)statsButtonPressed:(id)sender{
+    _client.shouldGetStats = !_client.shouldGetStats;
+    self.statsView.hidden = !_client.shouldGetStats;
+}
+
 
 #pragma mark - ARDAppClientDelegate
 
@@ -231,6 +236,14 @@
     [alertView show];
     [self disconnect];
 }
+
+- (void)appClient:(ARDAppClient *)client
+      didGetStats:(NSArray *)stats {
+    
+    //NSLog(@"stats:%@" , stats);
+    [self.statsView setStats:stats];
+}
+
 
 #pragma mark - RTCEAGLVideoViewDelegate
 
