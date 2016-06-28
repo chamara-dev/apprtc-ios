@@ -19,7 +19,7 @@
 		C62FFAD81D1922FB00784E5A /* ARDStatsView.m in Sources */ = {isa = PBXBuildFile; fileRef = C62FFAD71D1922FB00784E5A /* ARDStatsView.m */; };
 		C6517B9E1D0A62B700C3644B /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517B9D1D0A62B700C3644B /* libc++.tbd */; };
 		C6517BA01D0A62C800C3644B /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517B9F1D0A62C800C3644B /* GLKit.framework */; };
-		C6517BA21D0A62D200C3644B /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517BA11D0A62D200C3644B /* VideoToolbox.framework */; };
+		C6517BA21D0A62D200C3644B /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6517BA11D0A62D200C3644B /* VideoToolbox.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -395,6 +395,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = AppRTC/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -413,6 +414,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = AppRTC/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

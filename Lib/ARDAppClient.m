@@ -352,7 +352,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
   if (_state == kARDAppClientStateDisconnected) {
     return;
   }
-  if (self.isRegisteredWithRoomServer && (self.iceState != RTCICEConnectionDisconnected)) {
+  if (self.isRegisteredWithRoomServer && (self.iceState != RTCICEConnectionDisconnected && self.iceState != RTCICEConnectionFailed)) {
     [self unregisterWithRoomServer];
   }
   if (_channel) {
@@ -461,8 +461,9 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 
 - (void)peerConnectionOnRenegotiationNeeded:
     (RTCPeerConnection *)peerConnection {
-    NSLog(@"Renegotiation - send offer again");
+    NSLog(@"Renegotiation :%d", peerConnection.iceConnectionState);
     if(peerConnection.iceConnectionState == RTCICEConnectionCompleted){
+        NSLog(@"send offer again");
         [self.renegotiationTimer invalidate];
         self.renegotiationTimer = nil;
         self.renegotiationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(sendOffer) userInfo:nil repeats:NO];
@@ -473,8 +474,8 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     iceConnectionChanged:(RTCICEConnectionState)newState {
     NSLog(@"ICE state changed: %d", newState);
     self.iceState = newState;
-    if(newState == RTCICEConnectionDisconnected){
-        NSLog(@"ICE Disconnected");
+    if((newState == RTCICEConnectionDisconnected) || (newState == RTCICEConnectionFailed)){
+        NSLog(@"ICE Disconnected or Failed");
         dispatch_async(dispatch_get_main_queue(), ^{
             //Have to implement proper delegate method to dismiss the videochatview
             [self.delegate appClient:self didError:nil];
