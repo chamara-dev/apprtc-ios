@@ -136,6 +136,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 @property(nonatomic, assign) BOOL isSpeakerEnabled;
 @property(nonatomic, assign) BOOL startProcessingSignals;
 @property(nonatomic, assign) BOOL isReadyToSendOfferToCallee;
+@property(nonatomic, assign) BOOL isRemotePeerDisconnected;
 @property(nonatomic, strong) NSMutableArray *iceServers;
 @property(nonatomic, strong) NSURL *webSocketURL;
 @property(nonatomic, strong) NSURL *webSocketRestURL;
@@ -167,6 +168,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 @synthesize startProcessingSignals = _startProcessingSignals;
 @synthesize isReadyToSendOfferToCallee = _isReadyToSendOfferToCallee;
 @synthesize isSpeakerEnabled = _isSpeakerEnabled;
+@synthesize isRemotePeerDisconnected = _isRemotePeerDisconnected;
 @synthesize iceServers = _iceServers;
 @synthesize webSocketURL = _websocketURL;
 @synthesize webSocketRestURL = _websocketRestURL;
@@ -182,13 +184,14 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     _isSpeakerEnabled = YES;
     _startProcessingSignals = YES;
     _isReadyToSendOfferToCallee = YES;
+    _isRemotePeerDisconnected = NO;
     _iceState = RTCICEConnectionNew;
       
       
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(orientationChanged:)
-                                                   name:@"UIDeviceOrientationDidChangeNotification"
-                                                 object:nil];
+//      [[NSNotificationCenter defaultCenter] addObserver:self
+//                                               selector:@selector(orientationChanged:)
+//                                                   name:@"UIDeviceOrientationDidChangeNotification"
+//                                                 object:nil];
   }
   return self;
 }
@@ -212,6 +215,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     if (UIDeviceOrientationIsLandscape(orientation) || UIDeviceOrientationIsPortrait(orientation)) {
         //Remove current video track
         RTCMediaStream *localStream = _peerConnection.localStreams[0];
+        [_peerConnection removeStream:localStream];
         if([localStream.videoTracks count] > 0){
             [localStream removeVideoTrack:localStream.videoTracks[0]];
         }
@@ -221,7 +225,6 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
             [localStream addVideoTrack:localVideoTrack];
             [_delegate appClient:self didReceiveLocalVideoTrack:localVideoTrack];
         }
-        [_peerConnection removeStream:localStream];
         [_peerConnection addStream:localStream];
     }
 }
@@ -352,7 +355,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
   if (_state == kARDAppClientStateDisconnected) {
     return;
   }
-  if (self.isRegisteredWithRoomServer && (self.iceState != RTCICEConnectionDisconnected && self.iceState != RTCICEConnectionFailed)) {
+  if (self.isRegisteredWithRoomServer) {
     [self unregisterWithRoomServer];
   }
   if (_channel) {
@@ -476,6 +479,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
     self.iceState = newState;
     if((newState == RTCICEConnectionDisconnected) || (newState == RTCICEConnectionFailed)){
         NSLog(@"ICE Disconnected or Failed");
+        self.isRemotePeerDisconnected = YES;
         dispatch_async(dispatch_get_main_queue(), ^{
             //Have to implement proper delegate method to dismiss the videochatview
             [self.delegate appClient:self didError:nil];
@@ -708,6 +712,7 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
       // Other client disconnected.
       // TODO(tkchin): support waiting in room for next client. For now just
       // disconnect.
+      self.isRemotePeerDisconnected = YES;
       [self disconnect];
       break;
   }
@@ -883,7 +888,9 @@ static NSInteger kARDAppClientErrorInvalidRoom = -7;
 - (void)unregisterWithRoomServer {
     
     if(self.serverDelegate){
-        [self.serverDelegate appClient:self messageReadyForServer:[[ARDByeMessage alloc] init]];
+        if(!self.isRemotePeerDisconnected){
+            [self.serverDelegate appClient:self messageReadyForServer:[[ARDByeMessage alloc] init]];
+        }
     }else{
         NSString *urlString =
         [NSString stringWithFormat:kARDRoomServerByeFormat, self.serverHostUrl, _roomId, _clientId];
